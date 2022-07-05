@@ -2,25 +2,27 @@ package espn
 
 import "fmt"
 
+// League is an ESPN fantasy league.
 type League struct {
 	GameType GameType
-	LeagueId string
+	ID       string
 	Year     int
 
 	CurrentMatchupPeriod int
-	ScoringPeriodId      int
+	ScoringPeriodID      int
 	FirstScoringPeriod   int
 	CurrentWeek          int
-	Settings             LeagueSettingsJson
-	Members              map[string]*LeagueMemberJson
+	Settings             LeagueSettingsJSON
+	Members              map[string]*LeagueMemberJSON
 	Teams                map[int]*Team
 	Schedule             [][]Matchup
 
 	client *espnClient
 }
 
+// Team is information about a team within an ESPN fantasy league.
 type Team struct {
-	Id           int
+	ID           int
 	Abbreviation string
 	Name         string
 	Owners       []string
@@ -29,8 +31,9 @@ type Team struct {
 	Outcomes     []GameOutcome
 }
 
+// Matchup is a single ESPN fantasy game.
 type Matchup struct {
-	MatchupId int
+	ID        int
 	HomeTeam  *Team
 	HomeScore float64
 	AwayTeam  *Team
@@ -38,18 +41,20 @@ type Matchup struct {
 	Winner    string
 }
 
-func NewPublicLeague(gameType GameType, leagueId string, year int) (League, error) {
-	return newLeagueInternal(gameType, leagueId, year, newPublicClient(gameType, leagueId, year))
+// NewPublicLeague creates and initializes a public ESPN league.
+func NewPublicLeague(gameType GameType, leagueID string, year int) (League, error) {
+	return newLeagueInternal(gameType, leagueID, year, newPublicClient(gameType, leagueID, year))
 }
 
-func NewPrivateLeague(gameType GameType, leagueId string, year int, espnS2 string, swid string) (League, error) {
-	return newLeagueInternal(gameType, leagueId, year, newPrivateClient(gameType, leagueId, year, espnS2, swid))
+// NewPrivateLeague creates and initializes a private ESPN league (using a user's espn_s2 and SWID cookie values).
+func NewPrivateLeague(gameType GameType, leagueID string, year int, espnS2 string, swid string) (League, error) {
+	return newLeagueInternal(gameType, leagueID, year, newPrivateClient(gameType, leagueID, year, espnS2, swid))
 }
 
-func newLeagueInternal(gameType GameType, leagueId string, year int, client *espnClient) (League, error) {
+func newLeagueInternal(gameType GameType, leagueID string, year int, client *espnClient) (League, error) {
 	league := League{
 		GameType: gameType,
-		LeagueId: leagueId,
+		ID:       leagueID,
 		Year:     year,
 
 		client: client,
@@ -64,8 +69,9 @@ func newLeagueInternal(gameType GameType, leagueId string, year int, client *esp
 	return league, nil
 }
 
-func (league League) GetLeague() (LeagueInfoResponseJson, error) {
-	res := LeagueInfoResponseJson{}
+// GetLeague gets a full set of league information from the ESPN API.
+func (league League) GetLeague() (LeagueInfoResponseJSON, error) {
+	res := LeagueInfoResponseJSON{}
 	err := league.client.getLeagueInternal([]string{"mTeam", "mRoster", "mMatchup", "mSettings", "mStandings"}, "", &res)
 	if err != nil {
 		return res, err
@@ -73,6 +79,7 @@ func (league League) GetLeague() (LeagueInfoResponseJson, error) {
 	return res, nil
 }
 
+// RefreshData updates the League struct with the latest data from the ESPN API.
 func (league *League) RefreshData() error {
 	leagueInfo, err := league.GetLeague()
 	if err != nil {
@@ -80,7 +87,7 @@ func (league *League) RefreshData() error {
 	}
 
 	league.CurrentMatchupPeriod = leagueInfo.Status.CurrentMatchupPeriod
-	league.ScoringPeriodId = leagueInfo.ScoringPeriodID
+	league.ScoringPeriodID = leagueInfo.ScoringPeriodID
 	league.FirstScoringPeriod = leagueInfo.Status.FirstScoringPeriod
 	if league.Year < 2018 {
 		league.CurrentWeek = leagueInfo.ScoringPeriodID
@@ -91,7 +98,7 @@ func (league *League) RefreshData() error {
 	}
 	league.Settings = leagueInfo.Settings
 
-	membersMap := make(map[string]*LeagueMemberJson)
+	membersMap := make(map[string]*LeagueMemberJSON)
 	for _, m := range leagueInfo.Members {
 		membersMap[m.ID] = &m
 	}
@@ -100,7 +107,7 @@ func (league *League) RefreshData() error {
 	teams := make(map[int]*Team)
 	for _, t := range leagueInfo.Teams {
 		team := Team{
-			Id:           t.ID,
+			ID:           t.ID,
 			Abbreviation: t.Abbrev,
 			Name:         fmt.Sprintf("%s %s", t.Location, t.Nickname),
 			Owners:       t.Owners,
@@ -109,7 +116,7 @@ func (league *League) RefreshData() error {
 			Outcomes:     make([]GameOutcome, 0),
 		}
 		// TODO: populate roster, other data
-		teams[team.Id] = &team
+		teams[team.ID] = &team
 	}
 
 	league.Teams = teams
@@ -119,7 +126,7 @@ func (league *League) RefreshData() error {
 		scheduleByWeek = append(scheduleByWeek, make([]Matchup, 0, len(league.Teams)/2))
 	}
 	for _, matchup := range leagueInfo.Schedule {
-		lm := league.convertMatchupJson(matchup)
+		lm := league.convertMatchupJSON(matchup)
 		weekGames := scheduleByWeek[matchup.MatchupPeriodID-1]
 		scheduleByWeek[matchup.MatchupPeriodID-1] = append(weekGames, lm)
 	}
@@ -142,13 +149,13 @@ func (league *League) RefreshData() error {
 				game.HomeTeam.Outcomes = append(game.HomeTeam.Outcomes, GameOutcomeLoss)
 				game.AwayTeam.Outcomes = append(game.AwayTeam.Outcomes, GameOutcomeWin)
 			} else if game.Winner == "UNDECIDED" {
-				game.HomeTeam.Outcomes = append(game.HomeTeam.Outcomes, GameOutocomeUndecided)
+				game.HomeTeam.Outcomes = append(game.HomeTeam.Outcomes, GameOutcomeUndecided)
 				// bye weeks seem to be represented as an undecided game with only a home team
 				if game.AwayTeam != nil {
-					game.AwayTeam.Outcomes = append(game.AwayTeam.Outcomes, GameOutocomeUndecided)
+					game.AwayTeam.Outcomes = append(game.AwayTeam.Outcomes, GameOutcomeUndecided)
 				}
 			} else {
-				panic(fmt.Errorf("Unknown game winner type: %s", game.Winner))
+				panic(fmt.Errorf("unknown game winner type: %s", game.Winner))
 			}
 		}
 	}
@@ -156,9 +163,9 @@ func (league *League) RefreshData() error {
 	return nil
 }
 
-func (league League) convertMatchupJson(lm LeagueMatchupJson) Matchup {
+func (league League) convertMatchupJSON(lm LeagueMatchupJSON) Matchup {
 	return Matchup{
-		MatchupId: lm.ID,
+		ID:        lm.ID,
 		HomeTeam:  league.Teams[lm.Home.TeamID],
 		HomeScore: lm.Home.TotalPoints,
 		AwayTeam:  league.Teams[lm.Away.TeamID],
@@ -167,16 +174,9 @@ func (league League) convertMatchupJson(lm LeagueMatchupJson) Matchup {
 	}
 }
 
-func (league League) Matchups(week int) []Matchup {
-	return league.Schedule[week]
-}
-
-func (league League) CurrentWeekMatchups() []Matchup {
-	return league.Schedule[league.CurrentWeek-1]
-}
-
+// Scoreboard fetches matchups and scores for the current week from ESPN.
 func (league League) Scoreboard() ([]Matchup, error) {
-	res := LeagueInfoResponseJson{}
+	res := LeagueInfoResponseJSON{}
 
 	filter := fmt.Sprintf("{\"schedule\":{\"filterMatchupPeriodIds\":{\"value\":[%d]}}}", league.CurrentWeek)
 	err := league.client.getLeagueInternal([]string{"mScoreboard"}, filter, &res)
@@ -187,7 +187,7 @@ func (league League) Scoreboard() ([]Matchup, error) {
 
 	matchups := make([]Matchup, 0, len(res.Schedule))
 	for _, m := range res.Schedule {
-		matchups = append(matchups, league.convertMatchupJson(m))
+		matchups = append(matchups, league.convertMatchupJSON(m))
 	}
 	return matchups, nil
 }
