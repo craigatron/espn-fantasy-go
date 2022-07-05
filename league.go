@@ -148,7 +148,7 @@ func (league *League) RefreshData() error {
 					game.AwayTeam.Outcomes = append(game.AwayTeam.Outcomes, GameOutocomeUndecided)
 				}
 			} else {
-				panic(fmt.Errorf("Unknown game winner type: %s", game.Winner))
+				panic(fmt.Errorf("unknown game winner type: %s", game.Winner))
 			}
 		}
 	}

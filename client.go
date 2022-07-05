@@ -6,28 +6,29 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"strconv"
 	"time"
 )
 
 type espnClient struct {
 	HTTPClient *http.Client
 
-	baseUrl       string
-	baseLeagueUrl string
+	espnUrl        string
+	basePath       string
+	baseLeaguePath string
 }
 
 func newPublicClient(gameType GameType, leagueId string, year int) *espnClient {
-	baseUrl := EspnBaseUrl + "/" + gameType.String() + "/seasons/" + strconv.Itoa(year)
-	var baseLeagueUrl string
+	basePath := fmt.Sprintf("/%s/seasons/%d", gameType, year)
+	var baseLeaguePath string
 	if year < 2018 {
-		baseLeagueUrl = EspnBaseUrl + "/" + gameType.String() + "/leagueHistory/" + leagueId + "?seasonId=" + strconv.Itoa(year)
+		baseLeaguePath = fmt.Sprintf("/%s/leagueHistory/%s?seasonId=%d", gameType, leagueId, year)
 	} else {
-		baseLeagueUrl = baseUrl + "/segments/0/leagues/" + leagueId
+		baseLeaguePath = fmt.Sprintf("%s/segments/0/leagues/%s", basePath, leagueId)
 	}
 	return &espnClient{
-		baseUrl:       baseUrl,
-		baseLeagueUrl: baseLeagueUrl,
+		espnUrl:        EspnBaseUrl,
+		basePath:       basePath,
+		baseLeaguePath: baseLeaguePath,
 
 		HTTPClient: &http.Client{
 			Timeout: time.Minute,
@@ -74,7 +75,7 @@ func (c *espnClient) sendRequest(req *http.Request, v interface{}) error {
 }
 
 func (c *espnClient) getLeagueInternal(views []string, filter string, v interface{}) error {
-	req, err := http.NewRequest("GET", c.baseLeagueUrl, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.espnUrl, c.baseLeaguePath), nil)
 	if err != nil {
 		fmt.Printf("error in espn request: %v", err)
 		return err
