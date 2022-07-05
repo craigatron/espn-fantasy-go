@@ -11,10 +11,10 @@ type League struct {
 	ScoringPeriodId      int
 	FirstScoringPeriod   int
 	CurrentWeek          int
-	Settings             LeagueSettings
-	Members              map[string]*LeagueMember
+	Settings             LeagueSettingsJson
+	Members              map[string]*LeagueMemberJson
 	Teams                map[int]*Team
-	Schedule             [][]LeagueGame
+	Schedule             [][]Matchup
 
 	client *espnClient
 }
@@ -29,8 +29,8 @@ type Team struct {
 	Outcomes     []GameOutcome
 }
 
-type LeagueGame struct {
-	GameId    int
+type Matchup struct {
+	MatchupId int
 	HomeTeam  *Team
 	HomeScore float64
 	AwayTeam  *Team
@@ -55,7 +55,7 @@ func newLeagueInternal(gameType GameType, leagueId string, year int, client *esp
 		client: client,
 	}
 
-	err := league.refreshData()
+	err := league.RefreshData()
 
 	if err != nil {
 		return league, err
@@ -64,8 +64,17 @@ func newLeagueInternal(gameType GameType, leagueId string, year int, client *esp
 	return league, nil
 }
 
-func (league *League) refreshData() error {
-	leagueInfo, err := league.client.GetLeague()
+func (league League) GetLeague() (LeagueInfoResponseJson, error) {
+	res := LeagueInfoResponseJson{}
+	err := league.client.getLeagueInternal([]string{"mTeam", "mRoster", "mMatchup", "mSettings", "mStandings"}, "", &res)
+	if err != nil {
+		return res, err
+	}
+	return res, nil
+}
+
+func (league *League) RefreshData() error {
+	leagueInfo, err := league.GetLeague()
 	if err != nil {
 		return err
 	}
@@ -82,7 +91,7 @@ func (league *League) refreshData() error {
 	}
 	league.Settings = leagueInfo.Settings
 
-	membersMap := make(map[string]*LeagueMember)
+	membersMap := make(map[string]*LeagueMemberJson)
 	for _, m := range leagueInfo.Members {
 		membersMap[m.ID] = &m
 	}
@@ -105,21 +114,14 @@ func (league *League) refreshData() error {
 
 	league.Teams = teams
 
-	scheduleByWeek := make([][]LeagueGame, 0, leagueInfo.Status.FinalScoringPeriod)
+	scheduleByWeek := make([][]Matchup, 0, leagueInfo.Status.FinalScoringPeriod)
 	for i := 1; i <= leagueInfo.Status.FinalScoringPeriod; i++ {
-		scheduleByWeek = append(scheduleByWeek, make([]LeagueGame, 0, len(league.Teams)/2))
+		scheduleByWeek = append(scheduleByWeek, make([]Matchup, 0, len(league.Teams)/2))
 	}
-	for _, game := range leagueInfo.Schedule {
-		lg := LeagueGame{
-			GameId:    game.ID,
-			HomeTeam:  league.Teams[game.Home.TeamID],
-			HomeScore: game.Home.TotalPoints,
-			AwayTeam:  league.Teams[game.Away.TeamID],
-			AwayScore: game.Away.TotalPoints,
-			Winner:    game.Winner,
-		}
-		weekGames := scheduleByWeek[game.MatchupPeriodID-1]
-		scheduleByWeek[game.MatchupPeriodID-1] = append(weekGames, lg)
+	for _, matchup := range leagueInfo.Schedule {
+		lm := league.convertMatchupJson(matchup)
+		weekGames := scheduleByWeek[matchup.MatchupPeriodID-1]
+		scheduleByWeek[matchup.MatchupPeriodID-1] = append(weekGames, lm)
 	}
 	league.Schedule = scheduleByWeek
 
@@ -152,4 +154,40 @@ func (league *League) refreshData() error {
 	}
 
 	return nil
+}
+
+func (league League) convertMatchupJson(lm LeagueMatchupJson) Matchup {
+	return Matchup{
+		MatchupId: lm.ID,
+		HomeTeam:  league.Teams[lm.Home.TeamID],
+		HomeScore: lm.Home.TotalPoints,
+		AwayTeam:  league.Teams[lm.Away.TeamID],
+		AwayScore: lm.Away.TotalPoints,
+		Winner:    lm.Winner,
+	}
+}
+
+func (league League) Matchups(week int) []Matchup {
+	return league.Schedule[week]
+}
+
+func (league League) CurrentWeekMatchups() []Matchup {
+	return league.Schedule[league.CurrentWeek-1]
+}
+
+func (league League) Scoreboard() ([]Matchup, error) {
+	res := LeagueInfoResponseJson{}
+
+	filter := fmt.Sprintf("{\"schedule\":{\"filterMatchupPeriodIds\":{\"value\":[%d]}}}", league.CurrentWeek)
+	err := league.client.getLeagueInternal([]string{"mScoreboard"}, filter, &res)
+
+	if err != nil {
+		return nil, err
+	}
+
+	matchups := make([]Matchup, 0, len(res.Schedule))
+	for _, m := range res.Schedule {
+		matchups = append(matchups, league.convertMatchupJson(m))
+	}
+	return matchups, nil
 }

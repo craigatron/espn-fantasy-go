@@ -73,11 +73,15 @@ func (c *espnClient) sendRequest(req *http.Request, v interface{}) error {
 	return nil
 }
 
-func (c *espnClient) getLeagueInternal(views []string, v interface{}) error {
+func (c *espnClient) getLeagueInternal(views []string, filter string, v interface{}) error {
 	req, err := http.NewRequest("GET", c.baseLeagueUrl, nil)
 	if err != nil {
 		fmt.Printf("error in espn request: %v", err)
 		return err
+	}
+
+	if filter != "" {
+		req.Header.Add("x-fantasy-filter", filter)
 	}
 
 	if len(views) > 0 {
@@ -93,13 +97,4 @@ func (c *espnClient) getLeagueInternal(views []string, v interface{}) error {
 		return err
 	}
 	return nil
-}
-
-func (c *espnClient) GetLeague() (LeagueInfoResponse, error) {
-	res := LeagueInfoResponse{}
-	err := c.getLeagueInternal([]string{"mTeam", "mRoster", "mMatchup", "mSettings", "mStandings"}, &res)
-	if err != nil {
-		return res, err
-	}
-	return res, nil
 }

@@ -1,6 +1,6 @@
 package espn
 
-type CumulativeScore struct {
+type CumulativeScoreJson struct {
 	Losses      int         `json:"losses"`
 	ScoreByStat interface{} `json:"scoreByStat"`
 	StatBySlot  interface{} `json:"statBySlot"`
@@ -8,7 +8,7 @@ type CumulativeScore struct {
 	Wins        int         `json:"wins"`
 }
 
-type LeagueSettings struct {
+type LeagueSettingsJson struct {
 	AcquisitionSettings struct {
 		AcquisitionBudget            int      `json:"acquisitionBudget"`
 		AcquisitionLimit             int      `json:"acquisitionLimit"`
@@ -169,7 +169,7 @@ type LeagueSettings struct {
 	} `json:"tradeSettings"`
 }
 
-type LeagueMember struct {
+type LeagueMemberJson struct {
 	DisplayName          string `json:"displayName"`
 	FirstName            string `json:"firstName"`
 	ID                   string `json:"id"`
@@ -181,47 +181,49 @@ type LeagueMember struct {
 	} `json:"notificationSettings"`
 }
 
-type LeagueInfoResponse struct {
+type LeagueMatchupJson struct {
+	Away struct {
+		CumulativeScore        CumulativeScoreJson `json:"cumulativeScore"`
+		GamesPlayed            int                 `json:"gamesPlayed"`
+		RosterForMatchupPeriod struct {
+			Entries []interface{} `json:"entries"`
+		} `json:"rosterForMatchupPeriod"`
+		RosterForMatchupPeriodDelayed struct {
+			Entries []interface{} `json:"entries"`
+		} `json:"rosterForMatchupPeriodDelayed"`
+		TeamID      int     `json:"teamId"`
+		TotalPoints float64 `json:"totalPoints"`
+	} `json:"away,omitempty"`
+	Home struct {
+		CumulativeScore        CumulativeScoreJson `json:"cumulativeScore"`
+		GamesPlayed            int                 `json:"gamesPlayed"`
+		RosterForMatchupPeriod struct {
+			Entries []interface{} `json:"entries"`
+		} `json:"rosterForMatchupPeriod"`
+		RosterForMatchupPeriodDelayed struct {
+			Entries []interface{} `json:"entries"`
+		} `json:"rosterForMatchupPeriodDelayed"`
+		TeamID      int     `json:"teamId"`
+		TotalPoints float64 `json:"totalPoints"`
+	} `json:"home,omitempty"`
+	ID              int    `json:"id"`
+	MatchupPeriodID int    `json:"matchupPeriodId"`
+	Winner          string `json:"winner"`
+}
+
+type LeagueInfoResponseJson struct {
 	DraftDetail struct {
 		Drafted    bool `json:"drafted"`
 		InProgress bool `json:"inProgress"`
 	} `json:"draftDetail"`
-	GameID   int            `json:"gameId"`
-	ID       int            `json:"id"`
-	Members  []LeagueMember `json:"members"`
-	Schedule []struct {
-		Away struct {
-			CumulativeScore        CumulativeScore `json:"cumulativeScore"`
-			GamesPlayed            int             `json:"gamesPlayed"`
-			RosterForMatchupPeriod struct {
-				Entries []interface{} `json:"entries"`
-			} `json:"rosterForMatchupPeriod"`
-			RosterForMatchupPeriodDelayed struct {
-				Entries []interface{} `json:"entries"`
-			} `json:"rosterForMatchupPeriodDelayed"`
-			TeamID      int     `json:"teamId"`
-			TotalPoints float64 `json:"totalPoints"`
-		} `json:"away,omitempty"`
-		Home struct {
-			CumulativeScore        CumulativeScore `json:"cumulativeScore"`
-			GamesPlayed            int             `json:"gamesPlayed"`
-			RosterForMatchupPeriod struct {
-				Entries []interface{} `json:"entries"`
-			} `json:"rosterForMatchupPeriod"`
-			RosterForMatchupPeriodDelayed struct {
-				Entries []interface{} `json:"entries"`
-			} `json:"rosterForMatchupPeriodDelayed"`
-			TeamID      int     `json:"teamId"`
-			TotalPoints float64 `json:"totalPoints"`
-		} `json:"home,omitempty"`
-		ID              int    `json:"id"`
-		MatchupPeriodID int    `json:"matchupPeriodId"`
-		Winner          string `json:"winner"`
-	} `json:"schedule"`
-	ScoringPeriodID int            `json:"scoringPeriodId"`
-	SeasonID        int            `json:"seasonId"`
-	SegmentID       int            `json:"segmentId"`
-	Settings        LeagueSettings `json:"settings"`
+	GameID          int                 `json:"gameId"`
+	ID              int                 `json:"id"`
+	Members         []LeagueMemberJson  `json:"members"`
+	Schedule        []LeagueMatchupJson `json:"schedule"`
+	ScoringPeriodID int                 `json:"scoringPeriodId"`
+	SeasonID        int                 `json:"seasonId"`
+	SegmentID       int                 `json:"segmentId"`
+	Settings        LeagueSettingsJson  `json:"settings"`
 	Status          struct {
 		CreatedAsLeagueType      int   `json:"createdAsLeagueType"`
 		CurrentLeagueType        int   `json:"currentLeagueType"`
