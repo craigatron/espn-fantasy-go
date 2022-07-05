@@ -1,6 +1,7 @@
 package espn
 
-type CumulativeScoreJson struct {
+// CumulativeScoreJSON is raw cumulative score data for a player from the ESPN API.
+type CumulativeScoreJSON struct {
 	Losses      int         `json:"losses"`
 	ScoreByStat interface{} `json:"scoreByStat"`
 	StatBySlot  interface{} `json:"statBySlot"`
@@ -8,7 +9,8 @@ type CumulativeScoreJson struct {
 	Wins        int         `json:"wins"`
 }
 
-type LeagueSettingsJson struct {
+// LeagueSettingsJSON is the raw settings JSON from the ESPN API.
+type LeagueSettingsJSON struct {
 	AcquisitionSettings struct {
 		AcquisitionBudget            int      `json:"acquisitionBudget"`
 		AcquisitionLimit             int      `json:"acquisitionLimit"`
@@ -169,7 +171,8 @@ type LeagueSettingsJson struct {
 	} `json:"tradeSettings"`
 }
 
-type LeagueMemberJson struct {
+// LeagueMemberJSON is the raw member JSON from the ESPN API.
+type LeagueMemberJSON struct {
 	DisplayName          string `json:"displayName"`
 	FirstName            string `json:"firstName"`
 	ID                   string `json:"id"`
@@ -181,9 +184,10 @@ type LeagueMemberJson struct {
 	} `json:"notificationSettings"`
 }
 
-type LeagueMatchupJson struct {
+// LeagueMatchupJSON is the raw matchup JSON from the ESPN API.
+type LeagueMatchupJSON struct {
 	Away struct {
-		CumulativeScore        CumulativeScoreJson `json:"cumulativeScore"`
+		CumulativeScore        CumulativeScoreJSON `json:"cumulativeScore"`
 		GamesPlayed            int                 `json:"gamesPlayed"`
 		RosterForMatchupPeriod struct {
 			Entries []interface{} `json:"entries"`
@@ -195,7 +199,7 @@ type LeagueMatchupJson struct {
 		TotalPoints float64 `json:"totalPoints"`
 	} `json:"away,omitempty"`
 	Home struct {
-		CumulativeScore        CumulativeScoreJson `json:"cumulativeScore"`
+		CumulativeScore        CumulativeScoreJSON `json:"cumulativeScore"`
 		GamesPlayed            int                 `json:"gamesPlayed"`
 		RosterForMatchupPeriod struct {
 			Entries []interface{} `json:"entries"`
@@ -211,19 +215,20 @@ type LeagueMatchupJson struct {
 	Winner          string `json:"winner"`
 }
 
-type LeagueInfoResponseJson struct {
+// LeagueInfoResponseJSON is the raw response from the ESPN API.
+type LeagueInfoResponseJSON struct {
 	DraftDetail struct {
 		Drafted    bool `json:"drafted"`
 		InProgress bool `json:"inProgress"`
 	} `json:"draftDetail"`
 	GameID          int                 `json:"gameId"`
 	ID              int                 `json:"id"`
-	Members         []LeagueMemberJson  `json:"members"`
-	Schedule        []LeagueMatchupJson `json:"schedule"`
+	Members         []LeagueMemberJSON  `json:"members"`
+	Schedule        []LeagueMatchupJSON `json:"schedule"`
 	ScoringPeriodID int                 `json:"scoringPeriodId"`
 	SeasonID        int                 `json:"seasonId"`
 	SegmentID       int                 `json:"segmentId"`
-	Settings        LeagueSettingsJson  `json:"settings"`
+	Settings        LeagueSettingsJSON  `json:"settings"`
 	Status          struct {
 		CreatedAsLeagueType      int   `json:"createdAsLeagueType"`
 		CurrentLeagueType        int   `json:"currentLeagueType"`

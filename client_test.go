@@ -18,15 +18,15 @@ func TestBasePaths(t *testing.T) {
 		{2017, "/ffl/leagueHistory/12345?seasonId=2017"},
 	}
 
-	expectedEspnUrl := "https://fantasy.espn.com/apis/v3/games"
+	expectedEspnURL := "https://fantasy.espn.com/apis/v3/games"
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%d", tt.year), func(t *testing.T) {
 			expectedBasePath := fmt.Sprintf("/ffl/seasons/%d", tt.year)
 			client := newPublicClient(GameTypeNfl, "12345", tt.year)
 
-			if client.espnUrl != expectedEspnUrl {
-				t.Errorf("expected ESPN URL to be %s, got %s", expectedEspnUrl, client.espnUrl)
+			if client.espnURL != expectedEspnURL {
+				t.Errorf("expected ESPN URL to be %s, got %s", expectedEspnURL, client.espnURL)
 			}
 
 			if client.basePath != expectedBasePath {
@@ -108,22 +108,22 @@ func TestBaseRequest(t *testing.T) {
 			}
 
 			// Point client at the test server and copy over any cookies set for the ESPN URL
-			client.espnUrl = server.URL
-			serverUrl, _ := url.Parse(server.URL)
-			espnUrl, _ := url.Parse(EspnBaseUrl)
+			client.espnURL = server.URL
+			serverURL, _ := url.Parse(server.URL)
+			espnURL, _ := url.Parse(espnBaseURL)
 
 			if client.HTTPClient.Jar != nil {
 				cookies := make([]*http.Cookie, 0)
-				for _, c := range client.HTTPClient.Jar.Cookies(espnUrl) {
+				for _, c := range client.HTTPClient.Jar.Cookies(espnURL) {
 					cookies = append(cookies, &http.Cookie{
 						Name:  c.Name,
 						Value: c.Value,
 					})
 				}
-				client.HTTPClient.Jar.SetCookies(serverUrl, cookies)
+				client.HTTPClient.Jar.SetCookies(serverURL, cookies)
 			}
 
-			res := LeagueInfoResponseJson{}
+			res := LeagueInfoResponseJSON{}
 			err := client.getLeagueInternal([]string{"mView1", "mView2"}, "", &res)
 
 			if err != nil {

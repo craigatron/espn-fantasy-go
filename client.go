@@ -12,21 +12,21 @@ import (
 type espnClient struct {
 	HTTPClient *http.Client
 
-	espnUrl        string
+	espnURL        string
 	basePath       string
 	baseLeaguePath string
 }
 
-func newPublicClient(gameType GameType, leagueId string, year int) *espnClient {
+func newPublicClient(gameType GameType, leagueID string, year int) *espnClient {
 	basePath := fmt.Sprintf("/%s/seasons/%d", gameType, year)
 	var baseLeaguePath string
 	if year < 2018 {
-		baseLeaguePath = fmt.Sprintf("/%s/leagueHistory/%s?seasonId=%d", gameType, leagueId, year)
+		baseLeaguePath = fmt.Sprintf("/%s/leagueHistory/%s?seasonId=%d", gameType, leagueID, year)
 	} else {
-		baseLeaguePath = fmt.Sprintf("%s/segments/0/leagues/%s", basePath, leagueId)
+		baseLeaguePath = fmt.Sprintf("%s/segments/0/leagues/%s", basePath, leagueID)
 	}
 	return &espnClient{
-		espnUrl:        EspnBaseUrl,
+		espnURL:        espnBaseURL,
 		basePath:       basePath,
 		baseLeaguePath: baseLeaguePath,
 
@@ -36,9 +36,9 @@ func newPublicClient(gameType GameType, leagueId string, year int) *espnClient {
 	}
 }
 
-func newPrivateClient(gameType GameType, leagueId string, year int, espnS2 string, swid string) *espnClient {
+func newPrivateClient(gameType GameType, leagueID string, year int, espnS2 string, swid string) *espnClient {
 	jar, _ := cookiejar.New(nil)
-	url, _ := url.Parse(EspnBaseUrl)
+	url, _ := url.Parse(espnBaseURL)
 	cookies := make([]*http.Cookie, 2)
 	cookies[0] = &http.Cookie{
 		Name:  "espn_s2",
@@ -50,7 +50,7 @@ func newPrivateClient(gameType GameType, leagueId string, year int, espnS2 strin
 	}
 	jar.SetCookies(url, cookies)
 
-	client := newPublicClient(gameType, leagueId, year)
+	client := newPublicClient(gameType, leagueID, year)
 	client.HTTPClient.Jar = jar
 	return client
 }
@@ -75,7 +75,7 @@ func (c *espnClient) sendRequest(req *http.Request, v interface{}) error {
 }
 
 func (c *espnClient) getLeagueInternal(views []string, filter string, v interface{}) error {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.espnUrl, c.baseLeaguePath), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.espnURL, c.baseLeaguePath), nil)
 	if err != nil {
 		fmt.Printf("error in espn request: %v", err)
 		return err
