@@ -192,18 +192,21 @@ func (league League) Scoreboard() ([]Matchup, error) {
 	return matchups, nil
 }
 
-type Action struct {
+// RecentAction is an action involving a single player as part of a RecentActivity.
+type RecentAction struct {
 	Team   int
 	Action string
 	Player int
 }
 
+// RecentActivity is a set of player transactions.
 type RecentActivity struct {
-	Actions   []Action
+	Actions   []RecentAction
 	Timestamp int64
 	ESPNID    string
 }
 
+// RecentActivity returns recent player transactions.
 func (league League) RecentActivity(count int, offset int) ([]RecentActivity, error) {
 	res := ActivityJSON{}
 	filter := fmt.Sprintf("{\"topics\":{\"filterType\":{\"value\":[\"ACTIVITY_TRANSACTIONS\"]},\"limit\":%d,\"limitPerMessageSet\":{\"value\":%d},\"offset\":%d,\"sortMessageDate\":{\"sortPriority\":1,\"sortAsc\":false},\"sortFor\":{\"sortPriority\":2,\"sortAsc\":false},\"filterIncludeMessageTypeIds\":{\"value\": [178,180,179,239,181,244]}}}", count, count, offset)
@@ -212,7 +215,7 @@ func (league League) RecentActivity(count int, offset int) ([]RecentActivity, er
 
 	activity := make([]RecentActivity, 0)
 	for _, t := range res.Topics {
-		actions := make([]Action, 0)
+		actions := make([]RecentAction, 0)
 		for _, m := range t.Messages {
 			var team int
 			if m.MessageTypeID == 244 { // TRADED
@@ -223,7 +226,7 @@ func (league League) RecentActivity(count int, offset int) ([]RecentActivity, er
 				team = m.To
 			}
 			// TODO: look up player details
-			actions = append(actions, Action{
+			actions = append(actions, RecentAction{
 				Team:   team,
 				Action: activityMap[m.MessageTypeID],
 				Player: m.TargetID,
