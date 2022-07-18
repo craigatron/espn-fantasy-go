@@ -29,3 +29,12 @@ const (
 	// GameOutcomeLoss represents a matchup that the given team lost
 	GameOutcomeLoss
 )
+
+var activityMap = map[int]string{
+	178: "FA ADDED",
+	179: "DROPPED",
+	180: "WAIVER ADDED",
+	181: "DROPPED",
+	239: "DROPPED",
+	244: "TRADED",
+}

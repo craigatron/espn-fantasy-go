@@ -72,7 +72,7 @@ func newLeagueInternal(gameType GameType, leagueID string, year int, client *esp
 // GetLeague gets a full set of league information from the ESPN API.
 func (league League) GetLeague() (LeagueInfoResponseJSON, error) {
 	res := LeagueInfoResponseJSON{}
-	err := league.client.getLeagueInternal([]string{"mTeam", "mRoster", "mMatchup", "mSettings", "mStandings"}, "", &res)
+	err := league.client.getLeagueInternal([]string{"mTeam", "mRoster", "mMatchup", "mSettings", "mStandings"}, "", "", &res)
 	if err != nil {
 		return res, err
 	}
@@ -179,7 +179,7 @@ func (league League) Scoreboard() ([]Matchup, error) {
 	res := LeagueInfoResponseJSON{}
 
 	filter := fmt.Sprintf("{\"schedule\":{\"filterMatchupPeriodIds\":{\"value\":[%d]}}}", league.CurrentWeek)
-	err := league.client.getLeagueInternal([]string{"mScoreboard"}, filter, &res)
+	err := league.client.getLeagueInternal([]string{"mScoreboard"}, filter, "", &res)
 
 	if err != nil {
 		return nil, err
@@ -190,4 +190,51 @@ func (league League) Scoreboard() ([]Matchup, error) {
 		matchups = append(matchups, league.convertMatchupJSON(m))
 	}
 	return matchups, nil
+}
+
+type Action struct {
+	Team   int
+	Action string
+	Player int
+}
+
+type RecentActivity struct {
+	Actions   []Action
+	Timestamp int64
+	ESPNID    string
+}
+
+func (league League) RecentActivity(count int, offset int) ([]RecentActivity, error) {
+	res := ActivityJSON{}
+	filter := fmt.Sprintf("{\"topics\":{\"filterType\":{\"value\":[\"ACTIVITY_TRANSACTIONS\"]},\"limit\":%d,\"limitPerMessageSet\":{\"value\":%d},\"offset\":%d,\"sortMessageDate\":{\"sortPriority\":1,\"sortAsc\":false},\"sortFor\":{\"sortPriority\":2,\"sortAsc\":false},\"filterIncludeMessageTypeIds\":{\"value\": [178,180,179,239,181,244]}}}", count, count, offset)
+
+	err := league.client.getLeagueInternal([]string{"kona_league_communication"}, filter, "/communication", &res)
+
+	activity := make([]RecentActivity, 0)
+	for _, t := range res.Topics {
+		actions := make([]Action, 0)
+		for _, m := range t.Messages {
+			var team int
+			if m.MessageTypeID == 244 { // TRADED
+				team = m.From
+			} else if m.MessageTypeID == 239 { // DROPPED
+				team = m.For
+			} else { // FA ADDED, WAIVER ADDED
+				team = m.To
+			}
+			// TODO: look up player details
+			actions = append(actions, Action{
+				Team:   team,
+				Action: activityMap[m.MessageTypeID],
+				Player: m.TargetID,
+			})
+		}
+		activity = append(activity, RecentActivity{
+			Actions:   actions,
+			Timestamp: t.Date,
+			ESPNID:    t.ID,
+		})
+	}
+
+	return activity, err
 }
