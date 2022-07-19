@@ -124,7 +124,7 @@ func TestBaseRequest(t *testing.T) {
 			}
 
 			res := LeagueInfoResponseJSON{}
-			err := client.getLeagueInternal([]string{"mView1", "mView2"}, "", &res)
+			err := client.getLeagueInternal([]string{"mView1", "mView2"}, "", "", &res)
 
 			if err != nil {
 				t.Errorf("Error in getLeagueInternal: %s", err)

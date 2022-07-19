@@ -74,8 +74,8 @@ func (c *espnClient) sendRequest(req *http.Request, v interface{}) error {
 	return nil
 }
 
-func (c *espnClient) getLeagueInternal(views []string, filter string, v interface{}) error {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.espnURL, c.baseLeaguePath), nil)
+func (c *espnClient) getLeagueInternal(views []string, filter string, extend string, v interface{}) error {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", c.espnURL, c.baseLeaguePath, extend), nil)
 	if err != nil {
 		fmt.Printf("error in espn request: %v", err)
 		return err

@@ -426,3 +426,51 @@ type LeagueInfoResponseJSON struct {
 		} `json:"draftStrategy,omitempty"`
 	} `json:"teams"`
 }
+
+// ActivityJSON is the return type of the recent activity API call.
+type ActivityJSON struct {
+	Topics []struct {
+		Author       string `json:"author"`
+		CreationInfo struct {
+			ClientAddress interface{} `json:"clientAddress"`
+			Date          int64       `json:"date"`
+			Platform      string      `json:"platform"`
+			Source        string      `json:"source"`
+		} `json:"creationInfo"`
+		Date           int64  `json:"date"`
+		DateEdited     int64  `json:"dateEdited"`
+		ID             string `json:"id"`
+		IsDeleted      bool   `json:"isDeleted"`
+		IsEdited       bool   `json:"isEdited"`
+		LastUpdateInfo struct {
+			ClientAddress interface{} `json:"clientAddress"`
+			Date          int64       `json:"date"`
+			Platform      string      `json:"platform"`
+			Source        string      `json:"source"`
+		} `json:"lastUpdateInfo"`
+		Messages []struct {
+			Author       string `json:"author"`
+			CreationInfo struct {
+				ClientAddress interface{} `json:"clientAddress"`
+				Date          int64       `json:"date"`
+				Platform      string      `json:"platform"`
+				Source        string      `json:"source"`
+			} `json:"creationInfo"`
+			Date              int64  `json:"date"`
+			For               int    `json:"for"`
+			From              int    `json:"from"`
+			ID                string `json:"id"`
+			IsAlternateFormat bool   `json:"isAlternateFormat"`
+			IsDeleted         bool   `json:"isDeleted"`
+			IsEdited          bool   `json:"isEdited"`
+			MessageTypeID     int    `json:"messageTypeId"`
+			TargetID          int    `json:"targetId"`
+			To                int    `json:"to"`
+			TopicID           string `json:"topicId"`
+		} `json:"messages"`
+		TargetID          int    `json:"targetId,omitempty"`
+		TotalMessageCount int    `json:"totalMessageCount"`
+		Type              string `json:"type"`
+		For               int    `json:"for,omitempty"`
+	} `json:"topics"`
+}
