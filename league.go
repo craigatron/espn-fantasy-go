@@ -17,6 +17,8 @@ type League struct {
 	Teams                map[int]*Team
 	Schedule             [][]Matchup
 
+	Players map[int]Player
+
 	client *espnClient
 }
 
@@ -39,6 +41,15 @@ type Matchup struct {
 	AwayTeam  *Team
 	AwayScore float64
 	Winner    string
+}
+
+// Player is information about a player (heh)
+type Player struct {
+	ID       int
+	Position string
+	FullName string
+	Team     string
+	PctOwned float64
 }
 
 // NewPublicLeague creates and initializes a public ESPN league.
@@ -160,6 +171,22 @@ func (league *League) RefreshData() error {
 		}
 	}
 
+	players, err := league.GetActivePlayers()
+	if err != nil {
+		return err
+	}
+	playerMap := make(map[int]Player)
+	for _, p := range players {
+		playerMap[p.Player.ID] = Player{
+			ID:       p.Player.ID,
+			Position: positionMap[p.Player.DefaultPositionID],
+			FullName: p.Player.FullName,
+			Team:     proTeamMap[p.Player.ProTeamID],
+			PctOwned: p.Player.Ownership.PercentOwned,
+		}
+	}
+	league.Players = playerMap
+
 	return nil
 }
 
@@ -240,4 +267,14 @@ func (league League) RecentActivity(count int, offset int) ([]RecentActivity, er
 	}
 
 	return activity, err
+}
+
+// GetActivePlayers returns the list of active players for this league.
+func (league League) GetActivePlayers() (PlayersJSON, error) {
+	res := PlayersJSON{}
+
+	filter := "{\"filterActive\": {\"value\": true}}"
+	err := league.client.getLeagueInternal([]string{"players_wl"}, filter, "/players", &res)
+
+	return res, err
 }

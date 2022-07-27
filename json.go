@@ -474,3 +474,24 @@ type ActivityJSON struct {
 		For               int    `json:"for,omitempty"`
 	} `json:"topics"`
 }
+
+// PlayerJSON is a player from the active players endpoint.
+type PlayerJSON struct {
+	Player struct {
+		DefaultPositionID int    `json:"defaultPositionId"`
+		Droppable         bool   `json:"droppable"`
+		EligibleSlots     []int  `json:"eligibleSlots"`
+		FirstName         string `json:"firstName"`
+		FullName          string `json:"fullName"`
+		ID                int    `json:"id"`
+		LastName          string `json:"lastName"`
+		Ownership         struct {
+			PercentOwned float64 `json:"percentOwned"`
+		} `json:"ownership"`
+		ProTeamID  int `json:"proTeamId"`
+		UniverseID int `json:"universeId"`
+	} `json:"player"`
+}
+
+// PlayersJSON is the active players endpoint repsonse.
+type PlayersJSON []PlayerJSON
