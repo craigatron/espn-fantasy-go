@@ -195,7 +195,7 @@ type LeagueMatchupJSON struct {
 		RosterForMatchupPeriodDelayed struct {
 			Entries []interface{} `json:"entries"`
 		} `json:"rosterForMatchupPeriodDelayed"`
-		TeamID      int     `json:"teamId"`
+		TeamID      int64   `json:"teamId"`
 		TotalPoints float64 `json:"totalPoints"`
 	} `json:"away,omitempty"`
 	Home struct {
@@ -207,10 +207,10 @@ type LeagueMatchupJSON struct {
 		RosterForMatchupPeriodDelayed struct {
 			Entries []interface{} `json:"entries"`
 		} `json:"rosterForMatchupPeriodDelayed"`
-		TeamID      int     `json:"teamId"`
+		TeamID      int64   `json:"teamId"`
 		TotalPoints float64 `json:"totalPoints"`
 	} `json:"home,omitempty"`
-	ID              int    `json:"id"`
+	ID              int64  `json:"id"`
 	MatchupPeriodID int    `json:"matchupPeriodId"`
 	Winner          string `json:"winner"`
 }
@@ -222,12 +222,12 @@ type LeagueInfoResponseJSON struct {
 		InProgress bool `json:"inProgress"`
 	} `json:"draftDetail"`
 	GameID          int                 `json:"gameId"`
-	ID              int                 `json:"id"`
+	ID              int64               `json:"id"`
 	Members         []LeagueMemberJSON  `json:"members"`
 	Schedule        []LeagueMatchupJSON `json:"schedule"`
 	ScoringPeriodID int                 `json:"scoringPeriodId"`
-	SeasonID        int                 `json:"seasonId"`
-	SegmentID       int                 `json:"segmentId"`
+	SeasonID        int64               `json:"seasonId"`
+	SegmentID       int64               `json:"segmentId"`
 	Settings        LeagueSettingsJSON  `json:"settings"`
 	Status          struct {
 		CreatedAsLeagueType      int   `json:"createdAsLeagueType"`
@@ -255,7 +255,7 @@ type LeagueInfoResponseJSON struct {
 		CurrentProjectedRank  int      `json:"currentProjectedRank"`
 		DivisionID            int      `json:"divisionId"`
 		DraftDayProjectedRank int      `json:"draftDayProjectedRank"`
-		ID                    int      `json:"id"`
+		ID                    int64    `json:"id"`
 		IsActive              bool     `json:"isActive"`
 		Location              string   `json:"location"`
 		Logo                  string   `json:"logo"`
@@ -326,7 +326,7 @@ type LeagueInfoResponseJSON struct {
 				PlayerID              int         `json:"playerId"`
 				PlayerPoolEntry       struct {
 					AppliedStatTotal  float64 `json:"appliedStatTotal"`
-					ID                int     `json:"id"`
+					ID                int64   `json:"id"`
 					KeeperValue       int     `json:"keeperValue"`
 					KeeperValueFuture int     `json:"keeperValueFuture"`
 					LineupLocked      bool    `json:"lineupLocked"`
@@ -356,7 +356,7 @@ type LeagueInfoResponseJSON struct {
 						EligibleSlots []int  `json:"eligibleSlots"`
 						FirstName     string `json:"firstName"`
 						FullName      string `json:"fullName"`
-						ID            int    `json:"id"`
+						ID            int64  `json:"id"`
 						Injured       bool   `json:"injured"`
 						InjuryStatus  string `json:"injuryStatus"`
 						LastName      string `json:"lastName"`
@@ -389,9 +389,9 @@ type LeagueInfoResponseJSON struct {
 							ID              string                 `json:"id"`
 							ProTeamID       int                    `json:"proTeamId"`
 							ScoringPeriodID int                    `json:"scoringPeriodId"`
-							SeasonID        int                    `json:"seasonId"`
-							StatSourceID    int                    `json:"statSourceId"`
-							StatSplitTypeID int                    `json:"statSplitTypeId"`
+							SeasonID        int64                  `json:"seasonId"`
+							StatSourceID    int64                  `json:"statSourceId"`
+							StatSplitTypeID int64                  `json:"statSplitTypeId"`
 							Stats           map[string]interface{} `json:"stats,omitempty"`
 						} `json:"stats"`
 						UniverseID int `json:"universeId"`
@@ -407,17 +407,17 @@ type LeagueInfoResponseJSON struct {
 		TradeBlock struct {
 		} `json:"tradeBlock"`
 		TransactionCounter struct {
-			AcquisitionBudgetSpent   int `json:"acquisitionBudgetSpent"`
-			Acquisitions             int `json:"acquisitions"`
-			Drops                    int `json:"drops"`
+			AcquisitionBudgetSpent   int64 `json:"acquisitionBudgetSpent"`
+			Acquisitions             int64 `json:"acquisitions"`
+			Drops                    int64 `json:"drops"`
 			MatchupAcquisitionTotals struct {
 			} `json:"matchupAcquisitionTotals"`
-			Misc         int     `json:"misc"`
-			MoveToActive int     `json:"moveToActive"`
-			MoveToIR     int     `json:"moveToIR"`
+			Misc         int64   `json:"misc"`
+			MoveToActive int64   `json:"moveToActive"`
+			MoveToIR     int64   `json:"moveToIR"`
 			Paid         float64 `json:"paid"`
 			TeamCharges  float64 `json:"teamCharges"`
-			Trades       int     `json:"trades"`
+			Trades       int64   `json:"trades"`
 		} `json:"transactionCounter"`
 		WaiverRank    int `json:"waiverRank"`
 		DraftStrategy struct {
@@ -457,21 +457,21 @@ type ActivityJSON struct {
 				Source        string      `json:"source"`
 			} `json:"creationInfo"`
 			Date              int64  `json:"date"`
-			For               int    `json:"for"`
-			From              int    `json:"from"`
+			For               int64  `json:"for"`
+			From              int64  `json:"from"`
 			ID                string `json:"id"`
 			IsAlternateFormat bool   `json:"isAlternateFormat"`
 			IsDeleted         bool   `json:"isDeleted"`
 			IsEdited          bool   `json:"isEdited"`
 			MessageTypeID     int    `json:"messageTypeId"`
-			TargetID          int    `json:"targetId"`
-			To                int    `json:"to"`
+			TargetID          int64  `json:"targetId"`
+			To                int64  `json:"to"`
 			TopicID           string `json:"topicId"`
 		} `json:"messages"`
-		TargetID          int    `json:"targetId,omitempty"`
+		TargetID          int64  `json:"targetId,omitempty"`
 		TotalMessageCount int    `json:"totalMessageCount"`
 		Type              string `json:"type"`
-		For               int    `json:"for,omitempty"`
+		For               int64  `json:"for,omitempty"`
 	} `json:"topics"`
 }
 
@@ -483,7 +483,7 @@ type PlayerJSON struct {
 		EligibleSlots     []int  `json:"eligibleSlots"`
 		FirstName         string `json:"firstName"`
 		FullName          string `json:"fullName"`
-		ID                int    `json:"id"`
+		ID                int64  `json:"id"`
 		LastName          string `json:"lastName"`
 		Ownership         struct {
 			PercentOwned float64 `json:"percentOwned"`

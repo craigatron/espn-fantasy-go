@@ -14,17 +14,17 @@ type League struct {
 	CurrentWeek          int
 	Settings             LeagueSettingsJSON
 	Members              map[string]*LeagueMemberJSON
-	Teams                map[int]*Team
+	Teams                map[int64]*Team
 	Schedule             [][]Matchup
 
-	Players map[int]Player
+	Players map[int64]Player
 
 	client *espnClient
 }
 
 // Team is information about a team within an ESPN fantasy league.
 type Team struct {
-	ID           int
+	ID           int64
 	Abbreviation string
 	Name         string
 	Owners       []string
@@ -35,7 +35,7 @@ type Team struct {
 
 // Matchup is a single ESPN fantasy game.
 type Matchup struct {
-	ID        int
+	ID        int64
 	HomeTeam  *Team
 	HomeScore float64
 	AwayTeam  *Team
@@ -45,7 +45,7 @@ type Matchup struct {
 
 // Player is information about a player (heh)
 type Player struct {
-	ID       int
+	ID       int64
 	Position string
 	FullName string
 	Team     string
@@ -115,7 +115,7 @@ func (league *League) RefreshData() error {
 	}
 	league.Members = membersMap
 
-	teams := make(map[int]*Team)
+	teams := make(map[int64]*Team)
 	for _, t := range leagueInfo.Teams {
 		team := Team{
 			ID:           t.ID,
@@ -175,7 +175,7 @@ func (league *League) RefreshData() error {
 	if err != nil {
 		return err
 	}
-	playerMap := make(map[int]Player)
+	playerMap := make(map[int64]Player)
 	for _, p := range players {
 		playerMap[p.Player.ID] = Player{
 			ID:       p.Player.ID,
@@ -221,9 +221,9 @@ func (league League) Scoreboard() ([]Matchup, error) {
 
 // RecentAction is an action involving a single player as part of a RecentActivity.
 type RecentAction struct {
-	Team   int
+	Team   int64
 	Action string
-	Player int
+	Player int64
 }
 
 // RecentActivity is a set of player transactions.
@@ -244,7 +244,7 @@ func (league League) RecentActivity(count int, offset int) ([]RecentActivity, er
 	for _, t := range res.Topics {
 		actions := make([]RecentAction, 0)
 		for _, m := range t.Messages {
-			var team int
+			var team int64
 			if m.MessageTypeID == 244 { // TRADED
 				team = m.From
 			} else if m.MessageTypeID == 239 { // DROPPED
