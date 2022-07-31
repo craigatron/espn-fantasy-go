@@ -468,10 +468,10 @@ type ActivityJSON struct {
 			To                int64  `json:"to"`
 			TopicID           string `json:"topicId"`
 		} `json:"messages"`
-		TargetID          int64  `json:"targetId,omitempty"`
-		TotalMessageCount int    `json:"totalMessageCount"`
-		Type              string `json:"type"`
-		For               int64  `json:"for,omitempty"`
+		TargetID          interface{} `json:"targetId,omitempty"`
+		TotalMessageCount int         `json:"totalMessageCount"`
+		Type              string      `json:"type"`
+		For               int64       `json:"for,omitempty"`
 	} `json:"topics"`
 }
 
