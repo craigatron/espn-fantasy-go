@@ -195,9 +195,10 @@ type LeagueMatchupJSON struct {
 		RosterForMatchupPeriodDelayed struct {
 			Entries []interface{} `json:"entries"`
 		} `json:"rosterForMatchupPeriodDelayed"`
-		TeamID      int64   `json:"teamId"`
-		TotalPoints float64 `json:"totalPoints"`
-	} `json:"away,omitempty"`
+		TeamID                   int64   `json:"teamId"`
+		TotalPoints              float64 `json:"totalPoints"`
+		TotalProjectedPointsLive float64 `json:"totalProjectedPointsLive"`
+	} `json:"away"`
 	Home struct {
 		CumulativeScore        CumulativeScoreJSON `json:"cumulativeScore"`
 		GamesPlayed            int                 `json:"gamesPlayed"`
@@ -207,9 +208,10 @@ type LeagueMatchupJSON struct {
 		RosterForMatchupPeriodDelayed struct {
 			Entries []interface{} `json:"entries"`
 		} `json:"rosterForMatchupPeriodDelayed"`
-		TeamID      int64   `json:"teamId"`
-		TotalPoints float64 `json:"totalPoints"`
-	} `json:"home,omitempty"`
+		TeamID                   int64   `json:"teamId"`
+		TotalPoints              float64 `json:"totalPoints"`
+		TotalProjectedPointsLive float64 `json:"totalProjectedPointsLive"`
+	} `json:"home"`
 	ID              int64  `json:"id"`
 	MatchupPeriodID int    `json:"matchupPeriodId"`
 	Winner          string `json:"winner"`

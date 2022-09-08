@@ -194,9 +194,9 @@ func (league League) convertMatchupJSON(lm LeagueMatchupJSON) Matchup {
 	return Matchup{
 		ID:        lm.ID,
 		HomeTeam:  league.Teams[lm.Home.TeamID],
-		HomeScore: lm.Home.TotalPoints,
+		HomeScore: lm.Home.TotalProjectedPointsLive,
 		AwayTeam:  league.Teams[lm.Away.TeamID],
-		AwayScore: lm.Away.TotalPoints,
+		AwayScore: lm.Away.TotalProjectedPointsLive,
 		Winner:    lm.Winner,
 	}
 }
@@ -207,7 +207,6 @@ func (league League) Scoreboard() ([]Matchup, error) {
 
 	filter := fmt.Sprintf("{\"schedule\":{\"filterMatchupPeriodIds\":{\"value\":[%d]}}}", league.CurrentWeek)
 	err := league.client.getLeagueInternal([]string{"mScoreboard"}, filter, "", &res)
-
 	if err != nil {
 		return nil, err
 	}
